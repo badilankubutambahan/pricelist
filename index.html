@@ -827,8 +827,7 @@
                     const hasValidImage = product.image && product.image.trim() !== '' && !product.image.includes('placehol');
 
                     const listCard = document.createElement('div');
-                    listCard.className = "bg-white rounded-xl border border-gray-200 p-2.5 sm:p-3 shadow-sm hover:shadow-md smooth-transition cursor-pointer flex items-center gap-3 relative animate-fade-up";
-                    listCard.style.animationDelay = `${(index % 15) * 0.03}s`;
+                    listCard.className = "bg-white rounded-xl border border-gray-200 p-2.5 sm:p-3 shadow-sm hover:shadow-md smooth-transition cursor-pointer flex items-center gap-3 relative";
                     listCard.onclick = (e) => { if(!e.target.closest('button')) showProductDetail(product.id); };
                     
                     listCard.innerHTML = `
