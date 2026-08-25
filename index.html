@@ -379,7 +379,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Direktori promotor.
@@ -1089,9 +1089,8 @@
 
             getEl('btnLogoutAdmin')?.addEventListener('click', async () => {
                 try {
-                    await signOut(auth);
-                    await signInAnonymously(auth);
-                    currentUser = auth.currentUser;
+                    if (auth) await signOut(auth);
+                    currentUser = null;
                 } catch(e) {
                     console.error('Gagal logout admin:', e);
                 }
@@ -1208,6 +1207,22 @@
             };
 
             // Setup Firebase Cloud Sync
+            // Public customer tidak perlu login. Firestore Rules mengatur: read publik,
+            // write hanya akun admin yang sudah login via Email/Password.
+            const showCloudError = (error) => {
+                console.error('Firebase/Firestore error:', error);
+                isCloudConnected = false;
+                const status = getEl('cloudStatus');
+                if (status) {
+                    status.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Cloud bermasalah';
+                    status.classList.remove('hidden');
+                }
+                products = generateInitialData();
+                setupBrandFilters();
+                applyFilters();
+                if (isAdminMode) renderAdminTable();
+            };
+
             const setupCloudStorage = async () => {
                 try {
                     const firebaseConfig = {
@@ -1219,85 +1234,49 @@
                         appId: "1:137602326928:web:7d1935068545ee3ff41315",
                         measurementId: "G-FP20Y9N72R"
                     };
-                    if(firebaseConfig) {
-                        app = initializeApp(firebaseConfig);
-                        db = getFirestore(app);
-                        auth = getAuth(app);
-                        
-                        let tokenToUse = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                        if(tokenToUse) {
-                            await signInWithCustomToken(auth, tokenToUse);
-                        } else {
-                            await signInAnonymously(auth);
+
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    // IMPORTANT: jangan pakai anonymous auth untuk customer.
+                    // Website publik cukup membaca Firestore; admin login saat perlu menulis.
+                    const collRef = collection(db, ...PRODUCTS_PATH);
+                    cloudCollectionRef = collRef;
+
+                    onSnapshot(collRef, (snapshot) => {
+                        isCloudConnected = true;
+                        const status = getEl('cloudStatus');
+                        if (status) {
+                            status.innerHTML = '<i class="fa-solid fa-cloud-check mr-1"></i> Tersambung Online';
+                            status.classList.remove('hidden');
                         }
-                        currentUser = auth.currentUser;
-                        
-                        if(currentUser) {
-                            isCloudConnected = true;
-                            const collRef = collection(db, ...PRODUCTS_PATH);
-                            cloudCollectionRef = collRef;
-                            console.info('Firebase Cloud Sync aktif:', PRODUCTS_PATH.join('/'));
-                            
-                            onSnapshot(collRef, (snapshot) => {
-    // First connection: seed only when Firestore is genuinely empty.
-    if (snapshot.empty && !window.hasSeededFirebaseV8) {
-        window.hasSeededFirebaseV8 = true;
-        const initialProducts = generateInitialData();
-        Promise.all(initialProducts.map((p) => setDoc(doc(collRef, p.id), p)))
-            .catch((error) => {
-                console.error("Gagal seed Firestore:", error);
-                showCloudError(error);
-            });
-        return;
-    }
 
-    if (!snapshot.empty) {
-        window.hasSeededFirebaseV8 = true;
+                        const nextProducts = [];
+                        snapshot.forEach((snapDoc) => {
+                            nextProducts.push({ id: snapDoc.id, ...snapDoc.data() });
+                        });
 
-        // Update the data model in memory.
-        const nextProducts = [];
-        snapshot.forEach((snapDoc) => {
-            nextProducts.push({ id: snapDoc.id, ...snapDoc.data() });
-        });
-        nextProducts.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                        nextProducts.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                        products = nextProducts;
+                        window.hasSeededFirebaseV8 = true;
 
-        products = nextProducts;
-        flashRealtimeSync();
+                        // Jika database kosong, jangan seed dari browser customer.
+                        // Seed dilakukan setelah admin berhasil login.
+                        setupBrandFilters();
+                        applyFilters();
 
-        // IMPORTANT:
-        // Do not reload the page. Re-render only the affected UI.
-        // Keep the current scroll position, open modals, search text,
-        // filters, and customer state intact.
-        setupBrandFilters();
-        applyFilters();
-
-        if (isAdminMode) {
-            renderAdminTable();
-        }
-    }
-}, (error) => {
-    console.error("Cloud DB Listen Error:", error);
-    showCloudError(error);
-});
-                        } else {
-                            enableFallbackMode();
-                        }
-                    } else {
-                        enableFallbackMode();
-                    }
-                } catch(e) {
-                    console.error("Could not connect to Firebase/Firestore.", e);
-                    isCloudConnected = false;
-                    products = generateInitialData();
-                    setupBrandFilters();
-                    applyFilters();
+                        if (isAdminMode) renderAdminTable();
+                    }, (error) => {
+                        showCloudError(error);
+                    });
+                } catch (e) {
+                    showCloudError(e);
                 }
             };
 
             const enableFallbackMode = () => {
                 isCloudConnected = false;
-                // Jangan gunakan localStorage sebagai sumber data utama.
-                // Jika Firebase gagal, tampilkan data awal hanya sebagai fallback visual.
                 products = generateInitialData();
                 setupBrandFilters();
                 applyFilters();
