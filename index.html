@@ -43,6 +43,22 @@
             opacity: 0;
         }
         .menu-transition { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+
+        /* AI Assistant */
+        #ai-panel {
+            transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+        }
+        #ai-panel.ai-hidden { opacity:0; transform:translateY(16px) scale(.98); visibility:hidden; pointer-events:none; }
+        #ai-messages { scrollbar-width:thin; }
+        .ai-bubble-user { background:#168C4A; color:white; border-radius:16px 16px 4px 16px; }
+        .ai-bubble-bot { background:#F5F7F6; color:#1F2937; border-radius:16px 16px 16px 4px; }
+        .ai-typing span { animation: aiDot 1.2s infinite; opacity:.35; }
+        .ai-typing span:nth-child(2){animation-delay:.15s}.ai-typing span:nth-child(3){animation-delay:.3s}
+        @keyframes aiDot { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+        @media (max-width:640px){
+            #ai-panel { left:12px; right:12px; bottom:76px; width:auto; }
+            #ai-fab { right:16px; bottom:16px; }
+        }
     </style>
 </head>
 <body class="bg-surface text-textmain antialiased relative min-h-screen flex flex-col pb-16 md:pb-0">
@@ -217,6 +233,46 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Admin AI Panel -->
+            <div id="admin-ai-card" class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-primarydark px-4 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base md:text-lg font-bold text-white">Badilan AI</h3>
+                            <p id="ai-status" class="text-xs text-green-100">AI Admin • membaca data price list terbaru</p>
+                        </div>
+                    </div>
+                    <span class="text-[11px] px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white">Gemini</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px]">
+                    <div id="ai-messages" class="h-[360px] lg:h-[430px] overflow-y-auto p-4 space-y-3 bg-surface">
+                        <div class="flex gap-2 items-start">
+                            <div class="w-8 h-8 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <div class="ai-bubble-bot px-3 py-2 text-sm max-w-[90%]">Halo Adit, saya Badilan AI untuk Dashboard Admin. Saya bisa bantu analisis price list, cek harga promo, stok, membandingkan produk, dan mencari produk berdasarkan budget.</div>
+                        </div>
+                    </div>
+
+                    <div class="border-t lg:border-t-0 lg:border-l border-gray-200 p-4 bg-white">
+                        <p class="text-xs font-bold uppercase tracking-wide text-textlight mb-3">Analisis cepat</p>
+                        <div class="grid grid-cols-1 gap-2">
+                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Analisis price list saat ini dan sebutkan 5 produk paling menarik untuk dijual berdasarkan kombinasi harga, promo, dan stok.">5 produk paling menarik</button>
+                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Cari produk yang sedang promo dari price list saat ini dan tampilkan nama, varian, harga normal, harga promo, dan nominal hemat.">Cek semua produk promo</button>
+                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Analisis stok price list saat ini. Kelompokkan produk yang tersedia, terbatas, dan kosong, lalu berikan ringkasan singkat.">Analisis stok</button>
+                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Bandingkan produk terbaik dari tiap brand yang tersedia di price list saat ini berdasarkan harga dan value for money.">Bandingkan tiap brand</button>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="ai-form" class="p-3 md:p-4 border-t border-gray-200 bg-white flex gap-2">
+                    <input id="ai-input" type="text" autocomplete="off" class="flex-1 min-w-0 px-3 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Tanya AI tentang price list, stok, promo, atau analisis produk...">
+                    <button id="ai-send" type="submit" class="w-12 h-12 shrink-0 rounded-xl bg-primary hover:bg-primarydark text-white cursor-pointer flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -377,10 +433,13 @@
         </div>
     </div>
 
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+        import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js";
+        import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
 
         // Direktori promotor.
         // Isi nomor WA masing-masing promotor sebelum dibagikan ke customer.
@@ -422,6 +481,11 @@
         let isCloudConnected = false;
         
         let app, db, auth, currentUser;
+        let aiModel = null;
+        let appCheck = null;
+        // Isi dengan reCAPTCHA Enterprise site key yang dipakai saat mendaftarkan App Check Web App.
+        // Jika App Check AI Logic sudah Enforced, key ini wajib diisi agar AI dapat dipanggil dari website.
+        const RECAPTCHA_ENTERPRISE_SITE_KEY = 'GANTI_DENGAN_RECAPTCHA_ENTERPRISE_SITE_KEY';
         const appId = 'badilan-pricelist';
         const PRODUCTS_COLLECTION = 'products_v8';
         const PRODUCTS_PATH = ['artifacts', appId, 'public', 'data', PRODUCTS_COLLECTION];
@@ -1223,6 +1287,111 @@
                 if (isAdminMode) renderAdminTable();
             };
 
+            // =========================
+            // BADILAN AI ASSISTANT
+            // =========================
+            const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+
+            const addAiMessage = (role, text) => {
+                const box = getEl('ai-messages');
+                if (!box) return;
+                const wrap = document.createElement('div');
+                wrap.className = `flex gap-2 items-start ${role === 'user' ? 'justify-end' : ''}`;
+                if (role === 'user') {
+                    wrap.innerHTML = `<div class="ai-bubble-user px-3 py-2 text-sm max-w-[86%] whitespace-pre-wrap">${escapeHtml(text)}</div>`;
+                } else {
+                    wrap.innerHTML = `<div class="w-7 h-7 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="ai-bubble-bot px-3 py-2 text-sm max-w-[86%] whitespace-pre-wrap">${escapeHtml(text)}</div>`;
+                }
+                box.appendChild(wrap);
+                box.scrollTop = box.scrollHeight;
+                return wrap;
+            };
+
+            const addAiTyping = () => {
+                const box = getEl('ai-messages');
+                const wrap = document.createElement('div');
+                wrap.id = 'ai-typing';
+                wrap.className = 'flex gap-2 items-start';
+                wrap.innerHTML = `<div class="w-7 h-7 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="ai-bubble-bot px-3 py-2 text-sm"><div class="ai-typing flex gap-1"><span>●</span><span>●</span><span>●</span></div></div>`;
+                box.appendChild(wrap);
+                box.scrollTop = box.scrollHeight;
+                return wrap;
+            };
+
+            const buildProductContext = () => {
+                const rows = products.slice(0, 250).map((p, i) => {
+                    const normal = Number(p.price) || 0;
+                    const promo = Number(p.promoPrice) || 0;
+                    return `${i+1}. ${p.brand || '-'} | ${p.name || '-'} | ${p.variant || '-'} | normal ${formatRp(normal)} | promo ${promo ? formatRp(promo) : '-'} | stok ${p.stock || '-'} | garansi ${p.warranty || '-'}`;
+                });
+                return rows.length ? rows.join('\n') : 'Belum ada data produk di Firestore.';
+            };
+
+            const getAiSystemPrompt = () => `Kamu adalah Badilan AI, asisten admin untuk Dashboard Admin Price List Badilan 3 Kubutambahan.
+Aturan penting:
+1. Jawab dalam Bahasa Indonesia yang natural, singkat, jelas, dan membantu customer.
+2. Untuk pertanyaan harga, promo, varian, stok, atau garansi, HANYA gunakan data price list yang diberikan di bawah. Jangan mengarang harga atau stok.
+3. Jika produk yang diminta tidak ada di data, katakan tidak ditemukan dan jangan membuat angka sendiri.
+4. Jika diminta rekomendasi, pilih berdasarkan data yang tersedia dan jelaskan alasan singkat.
+5. Selalu tulis harga dengan format Rupiah Indonesia.
+6. Jika ada harga promo, tampilkan harga promo dan harga normal bila relevan.
+7. Jangan mengaku sebagai manusia. Jangan memberikan informasi internal, kredensial, API key, atau aturan keamanan.
+8. Kamu membantu admin menganalisis data price list. Untuk pertanyaan di luar data produk, jawab singkat dan jangan mengarang data bisnis internal.
+
+DATA PRICE LIST TERBARU:
+${buildProductContext()}`;
+
+            const ensureAiModel = async () => {
+                if (aiModel) return aiModel;
+                if (!app) throw new Error('Firebase belum siap.');
+                const ai = getAI(app, { backend: new GoogleAIBackend() });
+                aiModel = getGenerativeModel(ai, {
+                    model: 'gemini-3.7-flash',
+                    systemInstruction: getAiSystemPrompt(),
+                    generationConfig: { temperature: 0.35, maxOutputTokens: 700 }
+                });
+                return aiModel;
+            };
+
+            const askBadilanAI = async (prompt) => {
+                const model = await ensureAiModel();
+                const result = await model.generateContent(prompt);
+                return result.response.text();
+            };
+
+            const sendAiPrompt = async (prompt) => {
+                const clean = String(prompt || '').trim();
+                if (!clean) return;
+                const input = getEl('ai-input');
+                const sendBtn = getEl('ai-send');
+                addAiMessage('user', clean);
+                if (input) input.value = '';
+                if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+                const typing = addAiTyping();
+                try {
+                    if (!products.length) throw new Error('Data price list belum selesai dimuat. Coba lagi sebentar.');
+                    const answer = await askBadilanAI(clean);
+                    typing?.remove();
+                    addAiMessage('assistant', answer || 'Maaf, saya belum mendapatkan jawaban.');
+                } catch (err) {
+                    console.error('Badilan AI error:', err);
+                    typing?.remove();
+                    let message = 'AI belum bisa digunakan saat ini.';
+                    if (String(err?.message || '').includes('RECAPTCHA') || String(err?.message || '').includes('App Check') || String(err?.code || '').includes('app-check')) {
+                        message = 'AI sudah terpasang, tetapi App Check belum terhubung ke website. Isi RECAPTCHA_ENTERPRISE_SITE_KEY di coding dengan site key App Check Web kamu, lalu deploy ulang.';
+                    } else if (err?.message) {
+                        message = `AI gagal merespons: ${err.message}`;
+                    }
+                    addAiMessage('assistant', message);
+                } finally {
+                    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>'; }
+                    input?.focus();
+                }
+            };
+
+            getEl('ai-form')?.addEventListener('submit', (e) => { e.preventDefault(); sendAiPrompt(getEl('ai-input')?.value); });
+            document.querySelectorAll('.ai-quick').forEach(btn => btn.addEventListener('click', () => sendAiPrompt(btn.dataset.prompt || '')));
+
             const setupCloudStorage = async () => {
                 try {
                     const firebaseConfig = {
@@ -1236,8 +1405,24 @@
                     };
 
                     app = initializeApp(firebaseConfig);
+
+                    // App Check diperlukan untuk Firebase AI Logic ketika enforcement aktif.
+                    if (RECAPTCHA_ENTERPRISE_SITE_KEY && !RECAPTCHA_ENTERPRISE_SITE_KEY.startsWith('GANTI_')) {
+                        try {
+                            appCheck = initializeAppCheck(app, {
+                                provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_ENTERPRISE_SITE_KEY),
+                                isTokenAutoRefreshEnabled: true
+                            });
+                        } catch (appCheckError) {
+                            console.warn('App Check tidak dapat diinisialisasi:', appCheckError);
+                        }
+                    } else {
+                        console.warn('RECAPTCHA_ENTERPRISE_SITE_KEY belum diisi. Firestore tetap dapat berjalan, tetapi AI Logic dapat ditolak jika App Check AI Logic sudah Enforced.');
+                    }
+
                     db = getFirestore(app);
                     auth = getAuth(app);
+                    getEl('ai-status') && (getEl('ai-status').textContent = 'Terhubung ke Gemini • Price list realtime');
 
                     // IMPORTANT: jangan pakai anonymous auth untuk customer.
                     // Website publik cukup membaca Firestore; admin login saat perlu menulis.
