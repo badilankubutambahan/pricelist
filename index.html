@@ -417,7 +417,7 @@
         // Isi nomor WA masing-masing promotor sebelum dibagikan ke customer.
         const SALES_DIRECTORY = {
             WIDI:   { name: "I Gede Widiarta", phone: "6281237223809" },
-            DIKA:   { name: "Komang Dika Febriana", phone: "6285775621902" },
+            DIKA:   { name: "Komang Dika Febriana", phone: "6281996303294" },
             RISKY:  { name: "Putu Risky Mahayana Putra", phone: "6287765170210" },
             DELIA:  { name: "Ketut Delia Oktaviani", phone: "6281999117246" },
             SASTRA: { name: "Ketut Sastradwi Payana", phone: "6281958574774" },
@@ -427,6 +427,7 @@
             EKA:    { name: "Luh Eka Suwantari", phone: "6287843296234" }
         };
 
+        // Routing WA: URL ?ref=... mengarah ke WA promotor; tanpa ref mengarah ke WA toko.
         const SALES_STORAGE_KEY = 'badilan_sales_ref';
         const getSalesRefFromUrl = () => {
             const ref = new URLSearchParams(window.location.search).get('ref');
@@ -494,6 +495,11 @@
 
         window.openSalesModal = (message) => {
             const finalMsg = message || 'Halo Badilan Grosir, saya mau bertanya seputar produk.';
+            const activeSales = getActiveSales();
+            if (activeSales) {
+                sendToSalesWhatsapp(activeSales, finalMsg);
+                return;
+            }
             window.open(`https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(finalMsg)}`, '_blank', 'noopener');
         };
 
