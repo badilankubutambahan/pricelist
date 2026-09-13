@@ -268,7 +268,7 @@
                                 Jl. Raya Air Sanih, Kubutambahan, Kec. Kubutambahan, Kab. Buleleng, Bali 81171
                             </a>
                         </li>
-                        <li class="flex items-center gap-3"><i class="fa-brands fa-whatsapp w-4 text-green-500 text-lg"></i> <span>0889-8746-0416</span></li>
+                        <li class="flex items-center gap-3"><i class="fa-brands fa-whatsapp w-4 text-green-500 text-lg"></i> <span>0878-4438-5836</span></li>
                         <li class="flex items-start gap-3"><i class="fa-solid fa-clock mt-1 w-4 text-gray-400"></i> <span>Senin – Minggu: 08.00 – 21.30 WITA</span></li>
                     </ul>
                 </div>
@@ -277,8 +277,8 @@
                     <div class="flex flex-wrap gap-4">
                         <a href="#" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-green-600 hover:bg-green-50 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="Tokopedia Badilan"><i class="fa-solid fa-shop text-lg"></i></a>
                         <a href="#" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-orange-500 hover:bg-orange-50 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="Shopee Badilan"><i class="fa-solid fa-bag-shopping text-lg"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-pink-500 hover:bg-pink-50 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="Instagram"><i class="fa-brands fa-instagram text-xl"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-black hover:bg-gray-100 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="TikTok"><i class="fa-brands fa-tiktok text-xl"></i></a>
+                        <a href="https://www.instagram.com/badilan.kubutambahan?stkn=dHQ0ZTN3bnJrMzJw" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-pink-500 hover:bg-pink-50 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="Instagram Badilan Kubutambahan"><i class="fa-brands fa-instagram text-xl"></i></a>
+                        <a href="https://www.tiktok.com/@badilankubutambahan03?_r=1&_t=ZS-99RUfmNQiAK" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-textmain hover:text-black hover:bg-gray-100 smooth-transition shadow-sm hover:shadow transform hover:-translate-y-1" title="TikTok Badilan Kubutambahan 03"><i class="fa-brands fa-tiktok text-xl"></i></a>
                     </div>
                 </div>
             </div>
@@ -457,6 +457,7 @@
         const PRODUCTS_COLLECTION = 'products_v8';
         const PRODUCTS_PATH = ['artifacts', appId, 'public', 'data', PRODUCTS_COLLECTION];
         const ADMIN_EMAIL = 'bd3kubutambahan@gmail.com';
+        const STORE_WHATSAPP = '6287844385836';
         let cloudCollectionRef = null;
 
         // Helper Functions
@@ -492,51 +493,8 @@
         };
 
         window.openSalesModal = (message) => {
-            pendingWaMessage = message;
-            const activeSales = getActiveSales();
-
-            // Jika customer masuk melalui link promotor, jangan tampilkan pilihan sales.
-            // Langsung arahkan ke promotor pemilik link agar attribution tidak tertukar.
-            if (activeSales) {
-                sendToSalesWhatsapp(activeSales, pendingWaMessage);
-                return;
-            }
-
-            const modal = getEl('sales-modal');
-            const inner = getEl('sales-modal-inner');
-            const listContainer = getEl('sales-list');
-            if(!modal || !inner || !listContainer) return;
-
-            listContainer.innerHTML = '';
-            Object.entries(SALES_DIRECTORY).forEach(([ref, sales]) => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3 rounded-xl border border-gray-100 hover:border-primary hover:bg-green-50/50 flex justify-between items-center smooth-transition group shadow-sm cursor-pointer";
-                btn.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs group-hover:bg-primary group-hover:text-white transition-colors">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
-                        <div>
-                            <span class="font-semibold text-textmain text-sm sm:text-base">${sales.name}</span>
-                            <span class="block text-[10px] text-gray-400">Kode: ${ref}</span>
-                        </div>
-                    </div>
-                    <span class="text-xs bg-green-100 text-green-700 font-bold px-2.5 py-1 rounded-full group-hover:bg-green-600 group-hover:text-white transition-colors">Chat <i class="fa-brands fa-whatsapp ml-1"></i></span>
-                `;
-                btn.onclick = () => {
-                    sessionStorage.setItem(SALES_STORAGE_KEY, ref);
-                    sendToSalesWhatsapp({ ref, ...sales }, pendingWaMessage);
-                    window.closeSalesModal();
-                };
-                listContainer.appendChild(btn);
-            });
-
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                inner.classList.remove('scale-95');
-                document.body.style.overflow = 'hidden';
-            });
+            const finalMsg = message || 'Halo Badilan Grosir, saya mau bertanya seputar produk.';
+            window.open(`https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(finalMsg)}`, '_blank', 'noopener');
         };
 
         window.closeSalesModal = () => {
