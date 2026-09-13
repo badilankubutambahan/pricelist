@@ -427,7 +427,6 @@
             EKA:    { name: "Luh Eka Suwantari", phone: "6287843296234" }
         };
 
-        // Routing WA: URL ?ref=... mengarah ke WA promotor; tanpa ref mengarah ke WA toko.
         const SALES_STORAGE_KEY = 'badilan_sales_ref';
         const getSalesRefFromUrl = () => {
             const ref = new URLSearchParams(window.location.search).get('ref');
@@ -1362,7 +1361,7 @@
                 isCloudConnected = false;
                 const status = getEl('cloudStatus');
                 if (status) {
-                    status.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Cloud bermasalah';
+                    status.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Database belum tersambung';
                     status.classList.remove('hidden');
                 }
                 products = generateInitialData();
@@ -1372,6 +1371,8 @@
             };
 
             const setupCloudStorage = async () => {
+                let timeoutTimer = null;
+                let settled = false;
                 try {
                     const firebaseConfig = {
                         apiKey: "AIzaSyDNyaSfD0G7oyt6Af5HKhbDIFcvY7nWskw",
@@ -1384,16 +1385,24 @@
                     };
 
                     app = initializeApp(firebaseConfig);
-
                     db = getFirestore(app);
                     auth = getAuth(app);
 
-                    // IMPORTANT: jangan pakai anonymous auth untuk customer.
-                    // Website publik cukup membaca Firestore; admin login saat perlu menulis.
                     const collRef = collection(db, ...PRODUCTS_PATH);
                     cloudCollectionRef = collRef;
 
+                    // Jangan biarkan halaman berhenti di "Memuat..." selamanya.
+                    // Jika Firestore lambat/gagal, tampilkan data cadangan dan beri status.
+                    timeoutTimer = setTimeout(() => {
+                        if (!settled) {
+                            console.warn('Firestore belum merespons setelah 8 detik.');
+                            showCloudError({ code: 'firestore/timeout', message: 'Firestore timeout' });
+                        }
+                    }, 8000);
+
                     onSnapshot(collRef, (snapshot) => {
+                        settled = true;
+                        clearTimeout(timeoutTimer);
                         isCloudConnected = true;
                         const status = getEl('cloudStatus');
                         if (status) {
@@ -1409,17 +1418,17 @@
                         nextProducts.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
                         products = nextProducts;
                         window.hasSeededFirebaseV8 = true;
-
-                        // Jika database kosong, jangan seed dari browser customer.
-                        // Seed dilakukan setelah admin berhasil login.
                         setupBrandFilters();
                         applyFilters();
-
                         if (isAdminMode) renderAdminTable();
                     }, (error) => {
+                        settled = true;
+                        clearTimeout(timeoutTimer);
                         showCloudError(error);
                     });
                 } catch (e) {
+                    settled = true;
+                    clearTimeout(timeoutTimer);
                     showCloudError(e);
                 }
             };
