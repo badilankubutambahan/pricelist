@@ -43,22 +43,6 @@
             opacity: 0;
         }
         .menu-transition { transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out; }
-
-        /* AI Assistant */
-        #ai-panel {
-            transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
-        }
-        #ai-panel.ai-hidden { opacity:0; transform:translateY(16px) scale(.98); visibility:hidden; pointer-events:none; }
-        #ai-messages { scrollbar-width:thin; }
-        .ai-bubble-user { background:#168C4A; color:white; border-radius:16px 16px 4px 16px; }
-        .ai-bubble-bot { background:#F5F7F6; color:#1F2937; border-radius:16px 16px 16px 4px; }
-        .ai-typing span { animation: aiDot 1.2s infinite; opacity:.35; }
-        .ai-typing span:nth-child(2){animation-delay:.15s}.ai-typing span:nth-child(3){animation-delay:.3s}
-        @keyframes aiDot { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
-        @media (max-width:640px){
-            #ai-panel { left:12px; right:12px; bottom:76px; width:auto; }
-            #ai-fab { right:16px; bottom:16px; }
-        }
     </style>
 </head>
 <body class="bg-surface text-textmain antialiased relative min-h-screen flex flex-col pb-16 md:pb-0">
@@ -217,6 +201,35 @@
                     <h3 class="text-lg font-bold text-textmain">Manajemen Produk Terpusat</h3>
                     <button id="btnOpenAdminModal" class="bg-primary hover:bg-primarydark text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm smooth-transition transform hover:-translate-y-0.5 w-full md:w-auto cursor-pointer"><i class="fa-solid fa-plus mr-2"></i>Tambah Produk</button>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-semibold text-textmain mb-1">Cari Produk</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input id="adminSearch" type="text" placeholder="Cari nama produk / varian..." class="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-textmain mb-1">Filter Brand</label>
+                        <select id="adminFilterBrand" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
+                            <option value="All">Semua Brand</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-textmain mb-1">Filter Kategori</label>
+                        <select id="adminFilterCategory" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
+                            <option value="All">Semua Kategori</option>
+                            <option value="Smartphone">Smartphone</option>
+                            <option value="Tablet">Tablet</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mb-4 text-xs text-gray-500">
+                    <span id="adminFilterSummary">Menampilkan semua produk</span>
+                    <button type="button" id="btnResetAdminFilter" class="text-primary hover:underline font-semibold">Reset Filter</button>
+                </div>
                 <div class="overflow-x-auto hide-scroll">
                     <table class="w-full text-left border-collapse min-w-[700px]">
                         <thead>
@@ -232,46 +245,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            <!-- Admin AI Panel -->
-            <div id="admin-ai-card" class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="bg-primarydark px-4 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-base md:text-lg font-bold text-white">Badilan AI</h3>
-                            <p id="ai-status" class="text-xs text-green-100">AI Admin • membaca data price list terbaru</p>
-                        </div>
-                    </div>
-                    <span class="text-[11px] px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white">Gemini</span>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px]">
-                    <div id="ai-messages" class="h-[360px] lg:h-[430px] overflow-y-auto p-4 space-y-3 bg-surface">
-                        <div class="flex gap-2 items-start">
-                            <div class="w-8 h-8 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-                            <div class="ai-bubble-bot px-3 py-2 text-sm max-w-[90%]">Halo Adit, saya Badilan AI untuk Dashboard Admin. Saya bisa bantu analisis price list, cek harga promo, stok, membandingkan produk, dan mencari produk berdasarkan budget.</div>
-                        </div>
-                    </div>
-
-                    <div class="border-t lg:border-t-0 lg:border-l border-gray-200 p-4 bg-white">
-                        <p class="text-xs font-bold uppercase tracking-wide text-textlight mb-3">Analisis cepat</p>
-                        <div class="grid grid-cols-1 gap-2">
-                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Analisis price list saat ini dan sebutkan 5 produk paling menarik untuk dijual berdasarkan kombinasi harga, promo, dan stok.">5 produk paling menarik</button>
-                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Cari produk yang sedang promo dari price list saat ini dan tampilkan nama, varian, harga normal, harga promo, dan nominal hemat.">Cek semua produk promo</button>
-                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Analisis stok price list saat ini. Kelompokkan produk yang tersedia, terbatas, dan kosong, lalu berikan ringkasan singkat.">Analisis stok</button>
-                            <button type="button" class="ai-quick text-left text-xs px-3 py-2.5 rounded-lg border border-gray-200 hover:border-primary hover:text-primary cursor-pointer" data-prompt="Bandingkan produk terbaik dari tiap brand yang tersedia di price list saat ini berdasarkan harga dan value for money.">Bandingkan tiap brand</button>
-                        </div>
-                    </div>
-                </div>
-
-                <form id="ai-form" class="p-3 md:p-4 border-t border-gray-200 bg-white flex gap-2">
-                    <input id="ai-input" type="text" autocomplete="off" class="flex-1 min-w-0 px-3 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Tanya AI tentang price list, stok, promo, atau analisis produk...">
-                    <button id="ai-send" type="submit" class="w-12 h-12 shrink-0 rounded-xl bg-primary hover:bg-primarydark text-white cursor-pointer flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
-                </form>
             </div>
         </div>
     </div>
@@ -374,17 +347,22 @@
                 <input type="hidden" id="adminProductId">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-textmain mb-1">Brand</label>
-                        <input type="text" id="adminBrand" required class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary smooth-transition" placeholder="Contoh: Samsung">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-textmain mb-1">Kategori</label>
+                        <label class="block text-xs font-semibold text-textmain mb-1">Kategori Produk</label>
                         <select id="adminCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
                             <option value="Smartphone">Smartphone</option>
                             <option value="Tablet">Tablet</option>
                             <option value="Laptop">Laptop</option>
                             <option value="Accessories">Accessories</option>
                         </select>
+                        <p class="text-[10px] text-gray-400 mt-1">Pilih kategori dulu, daftar brand akan menyesuaikan.</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-textmain mb-1">Brand</label>
+                        <select id="adminBrand" required class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
+                            <option value="">Pilih Brand</option>
+                        </select>
+                        <input type="text" id="adminBrandCustom" class="hidden mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary smooth-transition" placeholder="Masukkan nama brand baru">
+                        <p id="adminBrandHint" class="text-[10px] text-gray-400 mt-1">Brand mengikuti kategori yang dipilih.</p>
                     </div>
                 </div>
                 <div class="mb-3 sm:mb-4">
@@ -411,7 +389,7 @@
                         <input type="number" id="adminPromo" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary smooth-transition" placeholder="Contoh: 6199000">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-5">
+                <div class="mb-5">
                     <div>
                         <label class="block text-xs font-semibold text-textmain mb-1">Status Stok</label>
                         <select id="adminStock" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary smooth-transition">
@@ -419,10 +397,6 @@
                             <option value="Terbatas">Terbatas</option>
                             <option value="Kosong">Kosong</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-textmain mb-1">URL Gambar (Dari Internet)</label>
-                        <input type="text" id="adminImage" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary smooth-transition" placeholder="https://contoh-link-gambar.com/foto.jpg">
                     </div>
                 </div>
                 <div class="flex justify-end gap-2 border-t pt-4">
@@ -438,8 +412,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-        import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-ai.js";
-        import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app-check.js";
 
         // Direktori promotor.
         // Isi nomor WA masing-masing promotor sebelum dibagikan ke customer.
@@ -481,11 +453,6 @@
         let isCloudConnected = false;
         
         let app, db, auth, currentUser;
-        let aiModel = null;
-        let appCheck = null;
-        
-        // Site Key sudah diisi di bawah ini:
-        const RECAPTCHA_ENTERPRISE_SITE_KEY = '6LcqUZgtAAAAAGTMpcbo-C0KHWFbQLo150bOPXyV';
         const appId = 'badilan-pricelist';
         const PRODUCTS_COLLECTION = 'products_v8';
         const PRODUCTS_PATH = ['artifacts', appId, 'public', 'data', PRODUCTS_COLLECTION];
@@ -586,141 +553,20 @@
 
         const generateInitialData = () => {
             const rawData = [
-                // REALME
-                ["realme", "NOTE 80", "4/64 GB", 1999000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "NOTE 80", "4/128 GB", 2399000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100I", "4/128 GB", 2699000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100I", "4/256 GB", 2899000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100I", "6/128 GB", 2999000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100X", "6/128 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100X", "6/256 GB", 3799000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100", "6/128 GB", 3799000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C100", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85", "6/128 GB", 3299000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85", "8/128 GB", 3499000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85", "8/256 GB", 3899000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85 5G", "8/256 GB", 3499000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85 PRO", "8/128 GB", 3999000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "C85 PRO", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "16 5G", "8/256 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "16 5G", "12/256 GB", 5999000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "16 PRO 5G", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
-                ["realme", "16 PRO+ 5G", "12/512 GB", 8999000, "Smartphone", "Resmi 1 Tahun"],
-
-                // XIAOMI
-                ["Xiaomi", "REDMI A7 PRO", "4/64 GB", 1999000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI A7 PRO", "4/128 GB", 2199000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI 17", "4/128 GB", 2899000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI 17", "6/128 GB", 3299000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI NOTE 14 PRO 5G", "8/256 GB", 3999000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI NOTE 15 PRO 5G", "8/256 GB", 5099000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI NOTE 15 PRO 5G", "12/512 GB", 5999000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI NOTE 15 PRO+ 5G", "8/256 GB", 6399000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "REDMI NOTE 15 PRO+ 5G", "12/512 GB", 7199000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO X7 PRO 5G", "12/512 GB", 6070000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO X8 PRO 5G", "8/512 GB", 6370000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO X8 PRO 5G", "12/512 GB", 6670000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO X8 PRO MAX 5G", "12/256 GB", 7330000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO X8 PRO MAX 5G", "12/512 GB", 8790000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "POCO F8 PRO", "12/512 GB", 9090000, "Smartphone", "Resmi 15 Bulan"],
-                ["Xiaomi", "17T", "12/512 GB", 9999000, "Smartphone", "Resmi 2 Tahun"],
-                ["Xiaomi", "17T PRO", "12/512 GB", 12999000, "Smartphone", "Resmi 2 Tahun"],
-                ["Xiaomi", "17", "12/256 GB", 14999000, "Smartphone", "Resmi 2 Tahun"],
-                ["Xiaomi", "17", "12/512 GB", 15999000, "Smartphone", "Resmi 2 Tahun"],
-
-                // XIAOMI TAB
-                ["Xiaomi", "REDMI PAD 2 9.7", "4/64 GB", 2649000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "REDMI PAD 2 9.7 4G", "4/64 GB", 2899000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "REDMI PAD 2 9.7 4G", "4/128 GB", 3099000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "REDMI PAD 2", "4/128 GB", 2999000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "REDMI PAD 2 4G", "4/256 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "REDMI PAD 2 4G", "6/128 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "PAD 2 PRO", "6/128 GB", 4499000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "PAD 2 PRO", "8/256 GB", 4999000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "PAD 8 WITH KEYBOARD", "8/256 GB", 7999000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "PAD 8 PRO WITH KEYBOARD", "8/256 GB", 9999000, "Tablet", "Resmi 1 Tahun"],
-                ["Xiaomi", "PAD 8 PRO WITH KEYBOARD+PEN", "8/256 GB", 11999000, "Tablet", "Resmi 1 Tahun"],
-
-                // TECNO
-                ["Tecno", "SPARK GO 3", "4/64 GB", 1849000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "SPARK GO 3", "4/128 GB", 1949000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "SPARK 50", "4/128 GB", 2399000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "SPARK 50", "6/128 GB", 2799000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "SPARK 50", "8/128 GB", 3299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "POVA 8 5G", "6/128 GB", 4299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "POVA 8 5G", "8/128 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "POVA 8 5G", "8/256 GB", 5599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50", "8/128 GB", 3999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50", "12/256 GB", 4599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50 PRO 5G", "8/256 GB", 5699000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50 PRO 5G", "12/256 GB", 5999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Tecno", "CAMON 50 PRO 5G", "12/512 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
-                
-                // TECNO TAB
-                ["Tecno", "MEGAPAD 11 SE", "4/128 GB", 2999000, "Tablet", "Resmi 1 Tahun"],
-                ["Tecno", "MEGAPAD 11 SE", "8/256 GB", 3399000, "Tablet", "Resmi 1 Tahun"],
-                ["Tecno", "MEGAPAD 11", "8/128 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
-                ["Tecno", "MEGAPAD 11", "8/256 GB", 2899000, "Tablet", "Resmi 1 Tahun"],
-
-                // INFINIX
-                ["Infinix", "SMART 20", "4/64 GB", 1849000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "SMART 20", "4/128 GB", 1999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "HOT 70", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "HOT 70", "8/128 GB", 3199000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "HOT 70", "6/256 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "NOTE EDGE 5G", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "NOTE 60", "8/256 GB", 4699000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "NOTE 60 PRO", "8/256 GB", 5999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "NOTE 60 PRO", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "GT 50 PRO", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Infinix", "GT 50 PRO", "12/512 GB", 7999000, "Smartphone", "Resmi 1 Tahun"],
-
-                // INFINIX TAB
-                ["Infinix", "XPAD 30E", "4/128 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
-                ["Infinix", "XPAD 20", "8/256 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
-                ["Infinix", "XPAD 20 PRO", "8/256 GB", 4199000, "Tablet", "Resmi 1 Tahun"],
-                ["Infinix", "XPAD EDGE", "8/256 GB", 4599000, "Tablet", "Resmi 1 Tahun"],
-
-                // VIVO
-                ["vivo", "Y05E", "4/64 GB", 2099000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y05", "4/64 GB", 2299000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y05", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y11D", "4/64 GB", 2399000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y11D", "4/128 GB", 2799000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y11D", "6/128 GB", 3599000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y31D", "4/128 GB", 3599000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y31D PRO", "4/128 GB", 3899000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y31D PRO", "6/128 GB", 4299000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y31D PRO", "8/128 GB", 4899000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y31D PRO", "8/256 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y500", "6/128 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "Y500", "6/256 GB", 6299000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "IQOO Z11 5G", "8/256 GB", 6899000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "V60 LITE 4G", "8/256 GB", 5299000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "V70 FE", "8/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "V70 FE", "12/256 GB", 7999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "V70", "8/256 GB", 9999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "V70", "12/512 GB", 10999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "X300", "12/256 GB", 14999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "X300", "16/512 GB", 16999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "X300 PRO", "16/512 GB", 18999000, "Smartphone", "Resmi 1 Tahun"],
-                ["vivo", "X300 ULTRA", "16/512 GB", 25999000, "Smartphone", "Resmi 1 Tahun"],
-
-                // IPHONE & IPAD
+                // IPHONE
                 ["iPhone", "IPHONE 15", "128 GB", 12999000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 15", "256 GB", 15249000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 16", "128 GB", 15499000, "Smartphone", "iBox Resmi"],
-                ["iPhone", "IPHONE 16", "256 GB", 16999000, "Smartphone", "iBox Resmi"],
+                ["iPhone", "IPHONE 16", "256 GB", 17499000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 16", "512 GB", 20999000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 16 PLUS", "128 GB", 16499000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 16 PLUS", "256 GB", 18499000, "Smartphone", "iBox Resmi"],
-                ["iPhone", "IPHONE 16 PLUS", "512 GB", 22999000, "Smartphone", "iBox Resmi"],
+                ["iPhone", "IPHONE 16 PLUS", "512 GB", 20499000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 16 PRO MAX", "512 GB", 24499000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE AIR", "256 GB", 16999000, "Smartphone", "iBox Resmi"],
-                ["iPhone", "IPHONE AIR", "512 GB", 21749000, "Smartphone", "iBox Resmi"],
-                ["iPhone", "IPHONE AIR", "1 TB", 25999000, "Smartphone", "iBox Resmi"],
-                ["iPhone", "IPHONE 17E", "256 GB", 13499000, "Smartphone", "iBox Resmi"],
+                ["iPhone", "IPHONE AIR", "512 GB", 21249000, "Smartphone", "iBox Resmi"],
+                ["iPhone", "IPHONE AIR", "1 TB", 25499000, "Smartphone", "iBox Resmi"],
+                ["iPhone", "IPHONE 17E", "256 GB", 12999000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 17", "256 GB", 17999000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 17", "512 GB", 22749000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 17 PRO", "256 GB", 22999000, "Smartphone", "iBox Resmi"],
@@ -731,62 +577,43 @@
                 ["iPhone", "IPHONE 17 PRO MAX", "1 TB", 34249000, "Smartphone", "iBox Resmi"],
                 ["iPhone", "IPHONE 17 PRO MAX", "2 TB", 43249000, "Smartphone", "iBox Resmi"],
 
-                ["iPad", "IPHONE IPAD 11 GEN WIFI", "128 GB", 8999000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD 11 GEN WIFI", "256 GB", 10999000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD MINI 7 WIFI", "128 GB", 11249000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD AIR 7 11 INCH 5TH M3", "128 GB", 13249000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD AIR 7 11 INCH 5TH M3", "256 GB", 15499000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD AIR 11 INCH 6TH GEN", "256 GB", 17149000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD AIR 13 (M4) WIFI", "128 GB", 16149000, "Tablet", "iBox Resmi"],
-                ["iPad", "IPHONE IPAD 11 CELL", "256 GB", 20149000, "Tablet", "iBox Resmi"],
+                // IPAD
+                ["iPad", "IPAD 11 GEN WIFI", "128 GB", 8699000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD 11 GEN WIFI", "256 GB", 10699000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD MINI 7 WIFI", "128 GB", 11249000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD AIR 7 11 INCH 5TH M3 GEN WIFI", "128 GB", 13249000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD AIR 7 11 INCH 5TH M3 GEN WIFI", "256 GB", 15499000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD AIR 11 INCH 6TH GEN WIFI", "256 GB", 17149000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD AIR 13 (M4) WIFI", "128 GB", 18999000, "Tablet", "iBox Resmi"],
+                ["iPad", "IPAD 11 CELL", "256 GB", 14199000, "Tablet", "iBox Resmi"],
 
-                // SAMSUNG
-                ["Samsung", "GALAXY A07", "4/64 GB", 2199000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A07", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A07", "6/128 GB", 2999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A07 5G", "6/128 GB", 3199000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A17 4G", "4/128 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A17 4G", "8/128 GB", 3999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A17 4G", "8/256 GB", 4499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A17 5G", "8/256 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A56 5G", "12/256 GB", 7299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A27 5G", "6/128 GB", 5299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A27 5G", "8/256 GB", 6299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A37 5G", "8/128 GB", 6599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A37 5G", "8/256 GB", 7299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A57 5G", "8/128 GB", 7599000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A57 5G", "8/256 GB", 8299000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY A57 5G", "12/256 GB", 8999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25 FE", "8/256 GB", 11999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25 FE", "8/512 GB", 13499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25", "12/256 GB", 13999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25", "12/512 GB", 15999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25 ULTRA", "12/256 GB", 20999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S25 ULTRA", "12/512 GB", 22999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26", "12/256 GB", 16499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26", "12/512 GB", 19499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26+", "12/256 GB", 19499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26+", "12/512 GB", 22499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26 ULTRA", "12/256 GB", 24499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26 ULTRA", "12/512 GB", 27499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY S26 ULTRA", "16 GB/1 TB", 31999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY Z FOLD 6", "12/512 GB", 28499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY Z FLIP 7", "12/256 GB", 17999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY Z FLIP 7", "12/512 GB", 19999000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY Z FOLD 7", "12/512 GB", 31499000, "Smartphone", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY Z FOLD 7", "16 GB/1 TB", 34999000, "Smartphone", "Resmi 1 Tahun"],
+                // INFINIX
+                ["Infinix", "SMART 20", "4/64 GB", 1849000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "SMART 20", "4/128 GB", 1999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "HOT 70", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "HOT 70", "8/128 GB", 3199000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "HOT 70", "6/256 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "NOTE EDGE 5G", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "NOTE 60", "8/256 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "NOTE 60 PRO", "8/256 GB", 5999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "NOTE 60 PRO", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "GT 50 PRO", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "GT 50 PRO", "12/512 GB", 7999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Infinix", "XPAD 30E", "4/128 GBGB", 2699000, "Tablet", "Resmi 1 Tahun"],
+                ["Infinix", "XPAD 20", "8/256 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
+                ["Infinix", "XPAD 20 PRO", "8/256 GB", 4199000, "Tablet", "Resmi 1 Tahun"],
+                ["Infinix", "XPAD EDGE", "8/256 GB", 4599000, "Tablet", "Resmi 1 Tahun"],
 
-                // SAMSUNG TAB
-                ["Samsung", "TAB A11 WIFI", "4/64 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "TAB A11 LTE", "4/64 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "TAB A11+ WIFI", "6/128 GB", 4499000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "TAB A11+ LTE", "6/128 GB", 5999000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S10 LITE WIFI", "6/128 GB", 6499000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S10 LITE 5G", "6/128 GB", 7999000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S10 FE 5G", "8/128 GB", 11499000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S10 ULTRA 5G + KEYBOARD", "12/256 GB", 22999000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S11 5G", "12/256 GB", 21999000, "Tablet", "Resmi 1 Tahun"],
-                ["Samsung", "GALAXY TAB S11 ULTRA", "12/256 GB", 27999000, "Tablet", "Resmi 1 Tahun"],
+                // ITEL
+                ["Itel", "S26 ULTRA", "8/128 GB", 2350000, "Smartphone", "Resmi 1 Tahun"],
+                ["Itel", "S26 ULTRA", "8/256 GB", 2799000, "Smartphone", "Resmi 1 Tahun"],
+                ["Itel", "VISTATAB 11", "4/128 GB", 2299000, "Tablet", "Resmi 1 Tahun"],
+                ["Itel", "VISTATAB 30 PRO", "8/256 GB", 3250000, "Tablet", "Resmi 1 Tahun"],
+
+                // NUBIA
+                ["Nubia", "V80 MAX", "6/128 GB", 2299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Nubia", "V80 MAX", "8/128 GB", 2499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Nubia", "NEO 3 5G", "8/256 GB", 2810000, "Smartphone", "Resmi 1 Tahun"],
 
                 // OPPO
                 ["OPPO", "A6C", "4/64 GB", 2699000, "Smartphone", "Resmi 1 Tahun"],
@@ -811,9 +638,146 @@
                 ["OPPO", "FIND X9S", "12/256 GB", 15999000, "Smartphone", "Resmi 1 Tahun"],
                 ["OPPO", "FIND X9 PRO", "16/512 GB", 20999000, "Smartphone", "Resmi 1 Tahun"],
                 ["OPPO", "FIND X9 ULTRA", "12/256 GB", 27999000, "Smartphone", "Resmi 1 Tahun"],
+                ["OPPO", "PAD SE", "4/128 GB", 3599000, "Tablet", "Resmi 1 Tahun"],
 
-                // OPPO TAB
-                ["OPPO", "PAD SE", "4/128 GB", 3599000, "Tablet", "Resmi 1 Tahun"]
+                // SAMSUNG
+                ["Samsung", "GALAXY A07", "4/64 GB", 2199000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A07", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A07", "6/128 GB", 2999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A17 4G", "4/128 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A17 4G", "8/128 GB", 4599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A17 4G", "8/256 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A17 5G", "8/256 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A56 5G", "12/256 GB", 7299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A27 5G", "6/128 GB", 5299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A27 5G", "8/256 GB", 6299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A37 5G", "8/128 GB", 6599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A37 5G", "8/256 GB", 7299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A57 5G", "8/128 GB", 7599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A57 5G", "8/256 GB", 8299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY A57 5G", "12/256 GB", 8999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25 FE", "8/256 GB", 11999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25 FE", "8/512 GB", 13499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25", "12/256 GB", 13999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25", "12/512 GB", 15999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25 ULTRA", "12/256 GB", 20999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S25 ULTRA", "12/512 GB", 22999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26", "12/256 GB", 16499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26", "12/512 GB", 19499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26+", "12/256 GB", 19499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26+", "12/512 GB", 22499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26 ULTRA", "12/256 GB", 24499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26 ULTRA", "12/512 GB", 27499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY S26 ULTRA", "16 GB/1 TB", 31999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY Z FOLD 6", "12/512 GB", 28499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY Z FLIP 8", "12/256 GB", 19999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY Z FLIP 8", "12/512 GB", 23999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY Z FOLD 8", "12/512 GB", 32499000, "Smartphone", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY Z FOLD 8 ULTRA", "12/512 GB", 36499000, "Smartphone", "Resmi 1 Tahun"],
+
+                // SAMSUNG TAB
+                ["Samsung", "TAB A11 WIFI", "4/64 GB", 2699000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "TAB A11 LTE", "4/64 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "TAB A11+ WIFI", "6/128 GB", 4499000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "TAB A11+ LTE", "6/128 GB", 5999000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S10 LITE WIFI", "6/128 GB", 6499000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S10 LITE 5G", "6/128 GB", 7999000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S10 FE 5G", "8/128 GB", 11499000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S10 ULTRA 5G + KEYBOARD", "12/256 GB", 22999000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S11 5G", "12/256 GB", 21999000, "Tablet", "Resmi 1 Tahun"],
+                ["Samsung", "GALAXY TAB S11 ULTRA", "12/256 GB", 27999000, "Tablet", "Resmi 1 Tahun"],
+
+                // TECNO
+                ["Tecno", "SPARK GO 3", "4/64 GB", 1999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "SPARK GO 3", "4/128 GB", 2199000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "SPARK 50", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "SPARK 50", "6/128 GB", 2999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "SPARK 50", "8/128 GB", 3299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "POVA 8 5G", "6/128 GB", 4299000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "POVA 8 5G", "8/128 GB", 4999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "POVA 8 5G", "8/256 GB", 5599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "CAMON 50", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "CAMON 50", "12/256 GB", 4599000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "CAMON 50 PRO 5G", "8/256 GB", 5699000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "CAMON 50 PRO 5G", "12/256 GB", 5699000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "CAMON 50 PRO 5G", "12/512 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
+                ["Tecno", "MEGAPAD 11 SE", "4/128 GB", 2999000, "Tablet", "Resmi 1 Tahun"],
+                ["Tecno", "MEGAPAD 11 SE", "8/256 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
+
+                // REALME
+                ["realme", "NOTE 80", "4/64 GB", 2099000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "NOTE 80", "4/128 GB", 2399000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100I", "4/128 GB", 2699000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100I", "4/256 GB", 2899000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100X", "6/128 GB", 3399000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100X", "6/256 GB", 3799000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100", "6/128 GB", 3799000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C100", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C85 PRO", "8/128 GB", 3999000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "C85 PRO", "8/256 GB", 4399000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "16 5G", "8/256 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "16 5G", "12/256 GB", 5999000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "16 PRO 5G", "12/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
+                ["realme", "16 PRO+ 5G", "12/512 GB", 8999000, "Smartphone", "Resmi 1 Tahun"],
+
+                // VIVO
+                ["vivo", "Y05E", "4/64 GB", 2099000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y05", "4/64 GB", 2299000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y05", "4/128 GB", 2599000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y11D", "4/64 GB", 2399000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y11D", "4/128 GB", 2799000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y11", "6/128 GB", 3599000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y31D", "4/128 GB", 3599000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y31D PRO", "4/128 GB", 3899000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y31D PRO", "6/128 GB", 4299000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y31D PRO", "8/128 GB", 4899000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y31D PRO", "8/256 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y500", "6/128 GB", 5499000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "Y500", "6/256 GB", 6299000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "IQOO Z11 5G", "8/256 GB", 6899000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "V60 LITE 4G", "8/256 GB", 5899000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "V70 FE", "8/256 GB", 6999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "V70 FE", "12/256 GB", 7999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "V70", "8/256 GB", 9999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "V70", "12/512 GB", 10999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "X300", "12/256 GB", 14999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "X300", "16/512 GB", 16999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "X300 PRO", "16/512 GB", 18999000, "Smartphone", "Resmi 1 Tahun"],
+                ["vivo", "X300 ULTRA", "16/512 GB", 25999000, "Smartphone", "Resmi 1 Tahun"],
+
+                // XIAOMI
+                ["Xiaomi", "REDMI A7 PRO", "4/64 GB", 1999000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI A7 PRO", "4/128 GB", 2199000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI 17", "4/128 GB", 2899000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI 17", "6/128 GB", 3299000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI 17", "6/256 GB", 3899000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI NOTE 14 PRO 5G", "8/256 GB", 4399000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI NOTE 15 PRO 5G", "8/256 GB", 5099000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI NOTE 15 PRO 5G", "12/512 GB", 5999000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI NOTE 15 PRO+ 5G", "8/256 GB", 6399000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "REDMI NOTE 15 PRO+ 5G", "12/512 GB", 7199000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO X7 PRO 5G", "12/512 GB", 6100000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO X8 PRO 5G", "8/512 GB", 6300000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO X8 PRO 5G", "12/512 GB", 6670000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO X8 PRO MAX 5G", "12/256 GB", 7330000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO X8 PRO MAX 5G", "12/512 GB", 8790000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "POCO F8 PRO", "12/512 GB", 9090000, "Smartphone", "Resmi 15 Bulan"],
+                ["Xiaomi", "17T", "12/512 GB", 9999000, "Smartphone", "Resmi 2 Tahun"],
+                ["Xiaomi", "17T PRO", "12/512 GB", 11999000, "Smartphone", "Resmi 2 Tahun"],
+                ["Xiaomi", "17", "12/512 GB", 15999000, "Smartphone", "Resmi 2 Tahun"],
+
+                // XIAOMI TAB
+                ["Xiaomi", "REDMI PAD 2 9.7", "4/64 GB", 2649000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "REDMI PAD 2 9.7 4G", "4/64 GB", 2899000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "REDMI PAD 2 9.7 4G", "4/128 GB", 3099000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "REDMI PAD 2", "4/128 GB", 2999000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "REDMI PAD 2 4G", "4/256 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "REDMI PAD 2 4G", "6/128 GB", 3499000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "PAD 2 PRO", "6/128 GB", 4499000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "PAD 2 PRO", "8/256 GB", 4999000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "PAD 8", "8/256 GB WITH KEYBOARD", 7999000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "PAD 8 PRO", "8/256 GB WITH KEYBOARD", 9999000, "Tablet", "Resmi 1 Tahun"],
+                ["Xiaomi", "PAD 8 PRO", "8/256 GB WITH KEYBOARD+PEN", 11999000, "Tablet", "Resmi 1 Tahun"]
             ];
 
             return rawData.map((item, index) => ({
@@ -826,12 +790,52 @@
                 warranty: item[5],
                 promoPrice: null,
                 stock: 'Tersedia',
-                image: '',
                 createdAt: Date.now() + index
             }));
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            const defaultAdminBrands = ['Samsung','Xiaomi','OPPO','Vivo','Realme','iPhone','Infinix','Tecno','Itel','Nokia','POCO','HONOR','ASUS','Google Pixel','Huawei','OnePlus'];
+
+            const refreshAdminBrandOptions = (selectedBrand = '', selectedCategory = '') => {
+                const select = getEl('adminBrand');
+                if (!select) return;
+                const category = selectedCategory || getEl('adminCategory')?.value || 'Smartphone';
+                const categoryProducts = products.filter(p => (p.category || 'Smartphone') === category);
+                const categoryBrands = [...new Set(categoryProducts.map(p => p.brand).filter(Boolean))];
+                const fallbackBrands = ['Samsung','Xiaomi','OPPO','Vivo','Realme','iPhone','Infinix','Tecno','Itel','Nokia','POCO','HONOR','ASUS','Google Pixel','Huawei','OnePlus'];
+                const currentBrands = [...new Set([...categoryBrands, ...fallbackBrands.filter(brand => defaultAdminBrands.includes(brand) && categoryBrands.includes(brand))])]
+                    .sort((a, b) => a.localeCompare(b, 'id'));
+
+                const options = ['<option value="">Pilih Brand</option>']
+                    .concat(currentBrands.map(brand => `<option value="${brand}">${brand}</option>`))
+                    .concat(['<option value="Lainnya">+ Tambah Brand Baru</option>']);
+                select.innerHTML = options.join('');
+                select.value = selectedBrand && currentBrands.includes(selectedBrand) ? selectedBrand : (selectedBrand ? 'Lainnya' : '');
+
+                const custom = getEl('adminBrandCustom');
+                if (custom) {
+                    custom.value = selectedBrand && !currentBrands.includes(selectedBrand) ? selectedBrand : '';
+                    custom.classList.toggle('hidden', select.value !== 'Lainnya');
+                    custom.required = select.value === 'Lainnya';
+                }
+                const hint = getEl('adminBrandHint');
+                if (hint) hint.textContent = `${category}: ${currentBrands.length} brand tersedia`;
+            };
+
+            getEl('adminCategory')?.addEventListener('change', () => {
+                refreshAdminBrandOptions();
+            });
+
+            getEl('adminBrand')?.addEventListener('change', () => {
+                const select = getEl('adminBrand');
+                const custom = getEl('adminBrandCustom');
+                const isCustom = select?.value === 'Lainnya';
+                custom?.classList.toggle('hidden', !isCustom);
+                if (custom) custom.required = isCustom;
+                if (isCustom) custom.focus();
+            });
+
             const setupBrandFilters = () => {
                 const brandQuickFilters = getEl('brand-quick-filters');
                 if (!brandQuickFilters) return;
@@ -863,74 +867,129 @@
                 const container = getEl('product-container');
                 const emptyState = getEl('empty-state');
                 const loadingState = getEl('loading-indicator');
-                
+
                 if(!container || !emptyState || !loadingState) return;
-                
+
                 loadingState.classList.add('hidden');
                 container.innerHTML = '';
+                container.classList.remove('flex');
 
                 if (data.length === 0) {
                     container.classList.add('hidden');
                     emptyState.classList.remove('hidden');
                     return;
-                } else {
-                    emptyState.classList.add('hidden');
-                    container.classList.remove('hidden');
-                    container.classList.add('flex');
                 }
 
-                data.forEach((product, index) => {
-                    const isPromo = product.promoPrice !== null && product.promoPrice > 0;
-                    const activePrice = isPromo ? product.promoPrice : product.price;
-                    const waMessage = `Halo Badilan Grosir, saya mau pesan ${product.name} ${product.variant} dengan harga ${formatRp(activePrice)}.`;
-                    const statusColor = product.stock === 'Tersedia' ? 'bg-green-100 text-green-700' : product.stock === 'Terbatas' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
-                    
-                    const discountPercent = isPromo ? Math.round(((product.price - product.promoPrice) / product.price) * 100) : 0;
-                    const savedNominal = isPromo ? product.price - product.promoPrice : 0;
-                    
-                    const hasValidImage = product.image && product.image.trim() !== '' && !product.image.includes('placehol');
+                emptyState.classList.add('hidden');
+                container.classList.remove('hidden');
 
-                    const listCard = document.createElement('div');
-                    listCard.className = "bg-white rounded-xl border border-gray-200 p-2.5 sm:p-3 shadow-sm hover:shadow-md smooth-transition cursor-pointer flex items-center gap-3 relative";
-                    listCard.onclick = (e) => { if(!e.target.closest('button')) showProductDetail(product.id); };
-                    
-                    listCard.innerHTML = `
-                        <!-- Gambar / Badge Brand Kiri -->
-                        <div class="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] flex-shrink-0 rounded-lg overflow-hidden relative border border-gray-100 bg-primary flex flex-col justify-center items-center">
-                            ${isPromo ? `<div class="absolute top-0 left-0 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-br-lg z-10 shadow-sm">-${discountPercent}%</div>` : ''}
-                            ${hasValidImage ? `
-                                <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover" onerror="this.style.display='none'">
-                            ` : `
-                                <span class="text-white font-bold text-xs z-10 drop-shadow-md text-center px-1">${product.brand}</span>
-                            `}
-                        </div>
-                        
-                        <!-- Konten Kanan -->
-                        <div class="flex-grow flex items-center justify-between min-w-0 gap-2">
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2 mb-0.5">
-                                    <h3 class="text-xs sm:text-sm font-bold text-textmain truncate">${product.name}</h3>
-                                    <span class="flex-shrink-0 px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-semibold ${statusColor}">${product.stock}</span>
-                                </div>
-                                <p class="text-[11px] sm:text-xs text-gray-500 mb-1 truncate">${product.variant} ${product.warranty && product.warranty !== '-' ? `• Garansi ${product.warranty}` : ''}</p>
-                                
-                                <div class="flex items-baseline gap-2 flex-wrap">
-                                    ${isPromo ? `
-                                        <span class="text-[10px] sm:text-xs text-gray-400 line-through">${formatRp(product.price)}</span>
-                                        <span class="text-[9px] sm:text-[10px] bg-red-50 text-red-500 px-1.5 py-0.2 rounded font-semibold border border-red-100 whitespace-nowrap">Hemat ${formatRp(savedNominal)}</span>
-                                        <span class="text-sm sm:text-base font-extrabold text-primary">${formatRp(product.promoPrice)}</span>
-                                    ` : `
-                                        <span class="text-sm sm:text-base font-extrabold text-primary">${formatRp(product.price)}</span>
-                                    `}
-                                </div>
+                // Tampilkan sebagai price list per brand, tanpa gambar / kartu produk.
+                const groups = [];
+                const groupMap = new Map();
+                data.forEach(product => {
+                    const brand = product.brand || 'Lainnya';
+                    if (!groupMap.has(brand)) {
+                        const group = { brand, products: [] };
+                        groupMap.set(brand, group);
+                        groups.push(group);
+                    }
+                    groupMap.get(brand).products.push(product);
+                });
+
+                groups.forEach((group, groupIndex) => {
+                    const section = document.createElement('section');
+                    section.className = 'bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden';
+
+                    const isFirst = groupIndex === 0;
+                    section.innerHTML = `
+                        <button type="button" class="brand-list-header w-full px-4 sm:px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-gray-50 transition-colors cursor-pointer text-left" aria-expanded="${isFirst ? 'true' : 'false'}">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <h3 class="text-base sm:text-lg font-extrabold text-textmain truncate">${group.brand}</h3>
+                                <span class="flex-shrink-0 bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold">${group.products.length} Produk</span>
                             </div>
-                            
-                            <button onclick="event.stopPropagation(); openSalesModal('${waMessage}');" class="flex-shrink-0 bg-primary hover:bg-primarydark text-white px-3 sm:px-4 py-2 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold smooth-transition shadow-sm cursor-pointer">
-                                <i class="fa-brands fa-whatsapp mr-1.5 text-sm sm:text-base"></i>Beli
-                            </button>
+                            <i class="brand-chevron fa-solid fa-chevron-${isFirst ? 'up' : 'down'} text-gray-500 text-xs flex-shrink-0"></i>
+                        </button>
+                        <div class="brand-list-body ${isFirst ? '' : 'hidden'} border-t border-gray-100">
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[650px] text-left">
+                                    <thead class="bg-gray-50/80">
+                                        <tr class="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wide">
+                                            <th class="px-4 sm:px-5 py-2.5 font-semibold">Nama Produk</th>
+                                            <th class="px-3 sm:px-4 py-2.5 font-semibold">Varian</th>
+                                            <th class="px-3 sm:px-4 py-2.5 font-semibold">Harga Normal</th>
+                                            <th class="px-3 sm:px-4 py-2.5 font-semibold">Harga Promo</th>
+                                            <th class="px-3 sm:px-4 py-2.5 font-semibold">Stok</th>
+                                            <th class="px-4 sm:px-5 py-2.5 font-semibold text-right">Pesan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100"></tbody>
+                                </table>
+                            </div>
                         </div>
                     `;
-                    container.appendChild(listCard);
+
+                    const tbody = section.querySelector('tbody');
+                    group.products.forEach(product => {
+                        const isPromo = Number(product.promoPrice) > 0 && Number(product.promoPrice) < Number(product.price);
+                        const activePrice = isPromo ? product.promoPrice : product.price;
+                        const discountPercent = isPromo ? Math.round(((product.price - product.promoPrice) / product.price) * 100) : 0;
+                        const waMessage = `Halo Badilan Grosir, saya mau pesan ${product.name} ${product.variant} dengan harga ${formatRp(activePrice)}.`;
+                        const statusClass = product.stock === 'Tersedia'
+                            ? 'text-green-700 bg-green-50'
+                            : product.stock === 'Terbatas'
+                                ? 'text-yellow-700 bg-yellow-50'
+                                : 'text-red-700 bg-red-50';
+
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-green-50/30 transition-colors cursor-pointer';
+                        tr.innerHTML = `
+                            <td class="px-4 sm:px-5 py-3">
+                                <div class="font-bold text-xs sm:text-sm text-textmain">${product.name}</div>
+                                ${product.category ? `<div class="text-[10px] text-gray-400 mt-0.5">${product.category}${product.warranty && product.warranty !== '-' ? ` • ${product.warranty}` : ''}</div>` : ''}
+                            </td>
+                            <td class="px-3 sm:px-4 py-3 text-xs sm:text-sm font-medium text-gray-600 whitespace-nowrap">${product.variant}</td>
+                            <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
+                                ${isPromo ? `<span class="text-xs sm:text-sm text-gray-400 line-through">${formatRp(product.price)}</span>` : `<span class="text-xs sm:text-sm font-extrabold text-textmain">${formatRp(product.price)}</span>`}
+                            </td>
+                            <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
+                                ${isPromo
+                                    ? `<div class="flex flex-col items-start gap-0.5"><span class="text-sm sm:text-base font-extrabold text-primary">${formatRp(product.promoPrice)}</span><span class="text-[9px] sm:text-[10px] bg-red-50 text-red-600 border border-red-100 px-1.5 py-0.5 rounded font-bold">PROMO -${discountPercent}%</span></div>`
+                                    : `<span class="text-xs sm:text-sm text-gray-300">—</span>`}
+                            </td>
+                            <td class="px-3 sm:px-4 py-3 whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${statusClass}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-current"></span>${product.stock}
+                                </span>
+                            </td>
+                            <td class="px-4 sm:px-5 py-3 text-right">
+                                <button type="button" class="btn-list-buy bg-primary hover:bg-primarydark text-white px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm transition-colors whitespace-nowrap" data-message="${encodeURIComponent(waMessage)}">
+                                    <i class="fa-brands fa-whatsapp mr-1"></i>Beli
+                                </button>
+                            </td>
+                        `;
+                        tr.addEventListener('click', (e) => {
+                            const buyBtn = e.target.closest('.btn-list-buy');
+                            if (buyBtn) {
+                                e.stopPropagation();
+                                openSalesModal(decodeURIComponent(buyBtn.dataset.message || ''));
+                                return;
+                            }
+                            showProductDetail(product.id);
+                        });
+                        tbody.appendChild(tr);
+                    });
+
+                    const header = section.querySelector('.brand-list-header');
+                    const body = section.querySelector('.brand-list-body');
+                    const chevron = section.querySelector('.brand-chevron');
+                    header.addEventListener('click', () => {
+                        const willOpen = body.classList.contains('hidden');
+                        body.classList.toggle('hidden', !willOpen);
+                        header.setAttribute('aria-expanded', String(willOpen));
+                        chevron.className = `brand-chevron fa-solid fa-chevron-${willOpen ? 'up' : 'down'} text-gray-500 text-xs flex-shrink-0`;
+                    });
+
+                    container.appendChild(section);
                 });
             };
 
@@ -975,17 +1034,14 @@
                 
                 const discountPercent = isPromo ? Math.round(((product.price - product.promoPrice) / product.price) * 100) : 0;
                 const savedNominal = isPromo ? product.price - product.promoPrice : 0;
-                const hasValidImage = product.image && product.image.trim() !== '' && !product.image.includes('placehol');
 
                 content.innerHTML = `
-                    <div class="w-full md:w-1/2 bg-surface flex items-center justify-center p-6 sm:p-8 relative overflow-hidden min-h-[200px]">
+                    <div class="w-full md:w-1/3 bg-surface p-6 sm:p-8 relative overflow-hidden min-h-[180px] flex flex-col justify-center">
                         <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent"></div>
-                        ${isPromo ? `<div class="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded shadow-sm">-${discountPercent}%</div>` : ''}
-                        ${hasValidImage ? `
-                            <img src="${product.image}" alt="${product.name}" class="w-auto max-w-full h-auto max-h-[220px] object-contain drop-shadow-xl relative z-10 rounded-lg">
-                        ` : `
-                            <div class="text-primary font-extrabold text-2xl tracking-wider relative z-10">${product.brand}</div>
-                        `}
+                        ${isPromo ? `<div class="relative z-10 inline-flex self-start bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded mb-3">PROMO -${discountPercent}%</div>` : ''}
+                        <p class="relative z-10 text-xs text-primary font-bold uppercase tracking-wider mb-1">${product.category || 'Produk'}</p>
+                        <div class="relative z-10 text-primary font-extrabold text-2xl tracking-wider">${product.brand}</div>
+                        <p class="relative z-10 text-xs text-gray-500 mt-2">Price list Badilan</p>
                     </div>
                     <div class="w-full md:w-1/2 p-5 sm:p-6 md:p-8 flex flex-col">
                         <div class="mb-4">
@@ -1165,6 +1221,8 @@
 
             getEl('btnOpenAdminModal')?.addEventListener('click', () => {
                 getEl('adminProductForm')?.reset();
+                if (getEl('adminCategory')) getEl('adminCategory').value = 'Smartphone';
+                refreshAdminBrandOptions();
                 if(getEl('adminProductId')) getEl('adminProductId').value = '';
                 if(getEl('adminModalTitle')) getEl('adminModalTitle').innerText = 'Tambah Produk';
                 
@@ -1201,19 +1259,60 @@
                 }
             });
 
+            let adminFilterBrand = 'All';
+            let adminFilterCategory = 'All';
+            let adminSearch = '';
+
+            const refreshAdminFilters = () => {
+                const select = getEl('adminFilterBrand');
+                if (!select) return;
+                const current = adminFilterBrand;
+                const brands = [...new Set(products.map(p => (p.brand || '').trim()).filter(Boolean))]
+                    .sort((a, b) => a.localeCompare(b, 'id'));
+                select.innerHTML = '<option value="All">Semua Brand</option>' +
+                    brands.map(brand => `<option value="${brand.replace(/"/g, '&quot;')}">${brand}</option>`).join('');
+                select.value = brands.includes(current) ? current : 'All';
+                if (!brands.includes(current)) adminFilterBrand = 'All';
+            };
+
             const renderAdminTable = () => {
                 const tbody = getEl('adminTableBody');
                 if (!tbody) return;
+                refreshAdminFilters();
                 tbody.innerHTML = '';
-                products.forEach(p => {
+
+                const q = adminSearch.trim().toLowerCase();
+                const filteredProducts = products.filter(p => {
+                    const name = (p.name || '').toLowerCase();
+                    const variant = (p.variant || '').toLowerCase();
+                    const brand = p.brand || '';
+                    const category = p.category || 'Smartphone';
+                    const matchSearch = !q || name.includes(q) || variant.includes(q) || brand.toLowerCase().includes(q);
+                    const matchBrand = adminFilterBrand === 'All' || brand === adminFilterBrand;
+                    const matchCategory = adminFilterCategory === 'All' || category === adminFilterCategory;
+                    return matchSearch && matchBrand && matchCategory;
+                });
+
+                const summary = getEl('adminFilterSummary');
+                if (summary) {
+                    const brandText = adminFilterBrand === 'All' ? '' : ` • ${adminFilterBrand}`;
+                    const categoryText = adminFilterCategory === 'All' ? '' : ` • ${adminFilterCategory}`;
+                    summary.textContent = `Menampilkan ${filteredProducts.length} dari ${products.length} produk${brandText}${categoryText}`;
+                }
+
+                if (filteredProducts.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-gray-400">Tidak ada produk yang sesuai dengan filter.</td></tr>`;
+                    return;
+                }
+
+                filteredProducts.forEach(p => {
                     const tr = document.createElement('tr');
                     tr.className = "hover:bg-gray-50 transition-colors group border-b border-gray-100";
-                    const hasImg = p.image && p.image.trim() !== '' && !p.image.includes('placehol');
                     tr.innerHTML = `
                         <td class="p-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded bg-surface flex items-center justify-center overflow-hidden flex-shrink-0 border">
-                                    ${hasImg ? `<img src="${p.image}" class="w-full h-full object-cover" onerror="this.style.display='none'">` : `<span class="text-[10px] font-bold text-primary">${p.brand}</span>`}
+                                <div class="w-10 h-10 rounded bg-surface flex items-center justify-center flex-shrink-0 border">
+                                    <span class="text-[10px] font-bold text-primary">${p.brand}</span>
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-textmain">${p.name}</p>
@@ -1245,20 +1344,41 @@
                 });
             };
 
+            getEl('adminSearch')?.addEventListener('input', (e) => {
+                adminSearch = e.target.value;
+                renderAdminTable();
+            });
+            getEl('adminFilterBrand')?.addEventListener('change', (e) => {
+                adminFilterBrand = e.target.value;
+                renderAdminTable();
+            });
+            getEl('adminFilterCategory')?.addEventListener('change', (e) => {
+                adminFilterCategory = e.target.value;
+                renderAdminTable();
+            });
+            getEl('btnResetAdminFilter')?.addEventListener('click', () => {
+                adminSearch = '';
+                adminFilterBrand = 'All';
+                adminFilterCategory = 'All';
+                if (getEl('adminSearch')) getEl('adminSearch').value = '';
+                if (getEl('adminFilterBrand')) getEl('adminFilterBrand').value = 'All';
+                if (getEl('adminFilterCategory')) getEl('adminFilterCategory').value = 'All';
+                renderAdminTable();
+            });
+
             const editProduct = (id) => {
                 const p = products.find(x => x.id === id);
                 if(!p) return;
                 
                 if(getEl('adminProductId')) getEl('adminProductId').value = p.id;
-                if(getEl('adminBrand')) getEl('adminBrand').value = p.brand;
                 if(getEl('adminCategory')) getEl('adminCategory').value = p.category || 'Smartphone';
+                refreshAdminBrandOptions(p.brand, p.category || 'Smartphone');
                 if(getEl('adminName')) getEl('adminName').value = p.name;
                 if(getEl('adminVariant')) getEl('adminVariant').value = p.variant;
                 if(getEl('adminWarranty')) getEl('adminWarranty').value = p.warranty || '';
                 if(getEl('adminPrice')) getEl('adminPrice').value = p.price;
                 if(getEl('adminPromo')) getEl('adminPromo').value = p.promoPrice || '';
                 if(getEl('adminStock')) getEl('adminStock').value = p.stock;
-                if(getEl('adminImage')) getEl('adminImage').value = (p.image && !p.image.includes('placehol')) ? p.image : '';
                 if(getEl('adminModalTitle')) getEl('adminModalTitle').innerText = 'Edit Produk';
                 
                 const modal = getEl('admin-product-modal');
@@ -1287,111 +1407,6 @@
                 if (isAdminMode) renderAdminTable();
             };
 
-            // =========================
-            // BADILAN AI ASSISTANT
-            // =========================
-            const escapeHtml = (value) => String(value ?? '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
-
-            const addAiMessage = (role, text) => {
-                const box = getEl('ai-messages');
-                if (!box) return;
-                const wrap = document.createElement('div');
-                wrap.className = `flex gap-2 items-start ${role === 'user' ? 'justify-end' : ''}`;
-                if (role === 'user') {
-                    wrap.innerHTML = `<div class="ai-bubble-user px-3 py-2 text-sm max-w-[86%] whitespace-pre-wrap">${escapeHtml(text)}</div>`;
-                } else {
-                    wrap.innerHTML = `<div class="w-7 h-7 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="ai-bubble-bot px-3 py-2 text-sm max-w-[86%] whitespace-pre-wrap">${escapeHtml(text)}</div>`;
-                }
-                box.appendChild(wrap);
-                box.scrollTop = box.scrollHeight;
-                return wrap;
-            };
-
-            const addAiTyping = () => {
-                const box = getEl('ai-messages');
-                const wrap = document.createElement('div');
-                wrap.id = 'ai-typing';
-                wrap.className = 'flex gap-2 items-start';
-                wrap.innerHTML = `<div class="w-7 h-7 shrink-0 rounded-full bg-green-100 text-primary flex items-center justify-center text-xs"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="ai-bubble-bot px-3 py-2 text-sm"><div class="ai-typing flex gap-1"><span>●</span><span>●</span><span>●</span></div></div>`;
-                box.appendChild(wrap);
-                box.scrollTop = box.scrollHeight;
-                return wrap;
-            };
-
-            const buildProductContext = () => {
-                const rows = products.slice(0, 250).map((p, i) => {
-                    const normal = Number(p.price) || 0;
-                    const promo = Number(p.promoPrice) || 0;
-                    return `${i+1}. ${p.brand || '-'} | ${p.name || '-'} | ${p.variant || '-'} | normal ${formatRp(normal)} | promo ${promo ? formatRp(promo) : '-'} | stok ${p.stock || '-'} | garansi ${p.warranty || '-'}`;
-                });
-                return rows.length ? rows.join('\n') : 'Belum ada data produk di Firestore.';
-            };
-
-            const getAiSystemPrompt = () => `Kamu adalah Badilan AI, asisten admin untuk Dashboard Admin Price List Badilan 3 Kubutambahan.
-Aturan penting:
-1. Jawab dalam Bahasa Indonesia yang natural, singkat, jelas, dan membantu customer.
-2. Untuk pertanyaan harga, promo, varian, stok, atau garansi, HANYA gunakan data price list yang diberikan di bawah. Jangan mengarang harga atau stok.
-3. Jika produk yang diminta tidak ada di data, katakan tidak ditemukan dan jangan membuat angka sendiri.
-4. Jika diminta rekomendasi, pilih berdasarkan data yang tersedia dan jelaskan alasan singkat.
-5. Selalu tulis harga dengan format Rupiah Indonesia.
-6. Jika ada harga promo, tampilkan harga promo dan harga normal bila relevan.
-7. Jangan mengaku sebagai manusia. Jangan memberikan informasi internal, kredensial, API key, atau aturan keamanan.
-8. Kamu membantu admin menganalisis data price list. Untuk pertanyaan di luar data produk, jawab singkat dan jangan mengarang data bisnis internal.
-
-DATA PRICE LIST TERBARU:
-${buildProductContext()}`;
-
-            const ensureAiModel = async () => {
-                if (aiModel) return aiModel;
-                if (!app) throw new Error('Firebase belum siap.');
-                const ai = getAI(app, { backend: new GoogleAIBackend() });
-                aiModel = getGenerativeModel(ai, {
-                    model: 'gemini-3.7-flash',
-                    systemInstruction: getAiSystemPrompt(),
-                    generationConfig: { temperature: 0.35, maxOutputTokens: 700 }
-                });
-                return aiModel;
-            };
-
-            const askBadilanAI = async (prompt) => {
-                const model = await ensureAiModel();
-                const result = await model.generateContent(prompt);
-                return result.response.text();
-            };
-
-            const sendAiPrompt = async (prompt) => {
-                const clean = String(prompt || '').trim();
-                if (!clean) return;
-                const input = getEl('ai-input');
-                const sendBtn = getEl('ai-send');
-                addAiMessage('user', clean);
-                if (input) input.value = '';
-                if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
-                const typing = addAiTyping();
-                try {
-                    if (!products.length) throw new Error('Data price list belum selesai dimuat. Coba lagi sebentar.');
-                    const answer = await askBadilanAI(clean);
-                    typing?.remove();
-                    addAiMessage('assistant', answer || 'Maaf, saya belum mendapatkan jawaban.');
-                } catch (err) {
-                    console.error('Badilan AI error:', err);
-                    typing?.remove();
-                    let message = 'AI belum bisa digunakan saat ini.';
-                    if (String(err?.message || '').includes('RECAPTCHA') || String(err?.message || '').includes('App Check') || String(err?.code || '').includes('app-check')) {
-                        message = 'AI sudah terpasang, tetapi App Check belum terhubung ke website. Isi RECAPTCHA_ENTERPRISE_SITE_KEY di coding dengan site key App Check Web kamu, lalu deploy ulang.';
-                    } else if (err?.message) {
-                        message = `AI gagal merespons: ${err.message}`;
-                    }
-                    addAiMessage('assistant', message);
-                } finally {
-                    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>'; }
-                    input?.focus();
-                }
-            };
-
-            getEl('ai-form')?.addEventListener('submit', (e) => { e.preventDefault(); sendAiPrompt(getEl('ai-input')?.value); });
-            document.querySelectorAll('.ai-quick').forEach(btn => btn.addEventListener('click', () => sendAiPrompt(btn.dataset.prompt || '')));
-
             const setupCloudStorage = async () => {
                 try {
                     const firebaseConfig = {
@@ -1406,23 +1421,8 @@ ${buildProductContext()}`;
 
                     app = initializeApp(firebaseConfig);
 
-                    // App Check diperlukan untuk Firebase AI Logic ketika enforcement aktif.
-                    if (RECAPTCHA_ENTERPRISE_SITE_KEY && !RECAPTCHA_ENTERPRISE_SITE_KEY.startsWith('GANTI_')) {
-                        try {
-                            appCheck = initializeAppCheck(app, {
-                                provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_ENTERPRISE_SITE_KEY),
-                                isTokenAutoRefreshEnabled: true
-                            });
-                        } catch (appCheckError) {
-                            console.warn('App Check tidak dapat diinisialisasi:', appCheckError);
-                        }
-                    } else {
-                        console.warn('RECAPTCHA_ENTERPRISE_SITE_KEY belum diisi. Firestore tetap dapat berjalan, tetapi AI Logic dapat ditolak jika App Check AI Logic sudah Enforced.');
-                    }
-
                     db = getFirestore(app);
                     auth = getAuth(app);
-                    getEl('ai-status') && (getEl('ai-status').textContent = 'Terhubung ke Gemini • Price list realtime');
 
                     // IMPORTANT: jangan pakai anonymous auth untuk customer.
                     // Website publik cukup membaca Firestore; admin login saat perlu menulis.
@@ -1520,10 +1520,19 @@ ${buildProductContext()}`;
 
                 const priceVal = parseInt(getEl('adminPrice')?.value) || 0;
                 const promoVal = parseInt(getEl('adminPromo')?.value) || null;
-                const rawImg = getEl('adminImage')?.value.trim() || '';
                 
+                const selectedBrand = getEl('adminBrand')?.value || '';
+                const customBrand = getEl('adminBrandCustom')?.value.trim() || '';
+                const finalBrand = selectedBrand === 'Lainnya' ? customBrand : selectedBrand;
+
+                if (!finalBrand) {
+                    alert('Silakan pilih atau isi brand produk.');
+                    if(btn) { btn.disabled = false; btn.innerText = 'Simpan Ke Database'; }
+                    return;
+                }
+
                 const newProduct = {
-                    brand: getEl('adminBrand')?.value.trim(),
+                    brand: finalBrand,
                     category: getEl('adminCategory')?.value,
                     name: getEl('adminName')?.value.trim(),
                     variant: getEl('adminVariant')?.value.trim(),
@@ -1531,7 +1540,6 @@ ${buildProductContext()}`;
                     price: priceVal,
                     promoPrice: promoVal,
                     stock: getEl('adminStock')?.value,
-                    image: rawImg,
                     createdAt: Date.now()
                 };
 
@@ -1545,8 +1553,6 @@ ${buildProductContext()}`;
                     const collRef = cloudCollectionRef || collection(db, ...PRODUCTS_PATH);
                     if (existingId) {
                         newProduct.id = existingId;
-                        const idx = products.findIndex(p => p.id === existingId);
-                        if(idx > -1 && !newProduct.image) newProduct.image = products[idx].image || '';
                         await setDoc(doc(collRef, existingId), newProduct, { merge: true });
                     } else {
                         newProduct.id = 'prod_' + Date.now();
